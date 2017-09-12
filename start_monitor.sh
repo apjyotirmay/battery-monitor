@@ -6,7 +6,8 @@ loc='/org/freedesktop/UPower/devices/battery_BAT0'
 queryState='upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep state | grep "\(charging\|discharging\)" --only-matching'
 maxCharge=90
 lowLevel=31
-criticalAction='yes'
+criticalAction='on'
+alarm='on'
 
 if [ $USER == $user ]
     then
@@ -30,7 +31,7 @@ if [ $USER == $user ]
             if [ "$STAT" == 'charging' ] && [ "$BAT" -gt $maxCharge];
             then
                 echo -e "Battery Sufficiently charged\nPower holding at: $BAT%" | 
-                xargs -d '\n' notify-send -i battery-empty-charging -u critical
+                xargs -d '\n' notify-send -i battery-full-charging-symbolic -u critical
                 
                 while true;
                 do
@@ -55,7 +56,7 @@ if [ $USER == $user ]
             if [ "$STAT" == 'fully-charged' ] && [ "$BAT" -gt $maxCharge ];
             then
                 echo -e "Battery Sufficiently charged\nPower holding at: $BAT%" | 
-                xargs -d '\n' notify-send -i battery-full -u critical
+                xargs -d '\n' notify-send -i battery-full-symbolic -u critical
                 while true;
                 do
                     STAT=$(upower -i $loc | 
@@ -79,11 +80,11 @@ if [ $USER == $user ]
             if [ "$STAT" == 'discharging' ] && [ "$BAT" -lt $lowLevel ];
             then
                 echo -e "Battery low! \nPower dropping below: $BAT%" | 
-                xargs -d '\n' notify-send -i battery-caution -u critical
+                xargs -d '\n' notify-send -i battery-caution-symbolic -u critical
                 # this script monitors power level to be critically low               
-                if [ criticalAction = 'yes' ]
+                if [ criticalAction = 'on' ]
                 then
-                    $HOME/.applications/scripts/critical_battery.sh & 
+                    ./critical_battery.sh & 
                     CRITCAL_ACTION=$(echo $!)
                 fi
                 while true;
@@ -91,12 +92,21 @@ if [ $USER == $user ]
                     STAT=$(upower -i /org/freedesktop/UPower/devices/battery_BAT0 | 
                     grep state | grep "\(charging\|discharging\)" --only-matching)
                     
-                    if [ "$STAT" == 'discharging' ];
+                    if [ "$STAT" = 'discharging' ];
                     then
-                        espeak -a 200 -v ${LANGUAGE} "Battery low, please turn on the external power";
-                        sleep 10s
+                        if [ "$alarm" = 'on' ]
+                        then
+                            ./alarm.sh &
+                            alarm_id=$(echo $!)
+                            alarm='off'
+                        fi
                     elif [ "$STAT" == 'discharging' ];
                     then
+                        if [ "$alarm" = 'on' ]
+                        then
+                            kill -9 $alarm_id
+                            alarm='on'
+                        fi
                         kill -9 $CRITCAL_ACTION
                         break
                     fi

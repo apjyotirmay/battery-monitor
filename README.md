@@ -10,3 +10,10 @@ This script monitors the battery level and notifies the user when,
 In any case if the user is unable to turn on the charging, this script can also take an action for critical level of battery (shutdown, suspend, or hibernate).
 
 **Note: Hibernation must be enabled and supported by your system to be used by this script.**
+
+## How to
+Use **start_monitor.sh** to start the script.
+> chmod +x start_monitor.sh
+> ./start_monitor.sh
+
+Add this script to autostart, so it is executed every time the user logs in
