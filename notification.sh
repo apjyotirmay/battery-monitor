@@ -2,18 +2,17 @@
 
 status=$1
 
-
 if [ "$status" = '0' ]
 then
-    msg="Battery sufficiently charged\nPower holding at"
+    msg="Disconnect charger!!\nPower holding at"
     icon="battery-full"
 elif [ "$status" = '1' ]
 then
-    msg="Battery sufficiently charged\nPower holding at"
+    msg="Disconnect charger!!\nPower holding at"
     icon="battery-full"
 elif [ "$status" = 2 ]
 then
-    msg="Battery low!\nPower dropping below"
+    msg="Connect charger!!\nPower dropping below"
     icon="battery-caution"
 fi
 

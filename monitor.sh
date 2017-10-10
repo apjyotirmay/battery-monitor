@@ -30,30 +30,26 @@ then
         ##################################################
         if [ "$STAT" = "charging" ] && [ "$BAT" -gt "$maxCharge" ];
         then
-            echo -e "Battery Sufficiently charged\nPower holding at: $BAT%" | 
-            xargs -d '\n' notify-send -i battery-full-charging -u critical
-            
+            ./notification.sh 0 &
+            NOTIFICATION=$(echo $!)
+            if [ "$alarm" = "on" ]
+            then
+                ./alarm.sh &
+                alarm_id=$(echo $!)
+            fi
+                    
             while true;
             do
-                STAT=$(upower -i $loc | 
-                grep state | grep "\(charging\|discharging\)" --only-matching)
+                STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
                 
-                if [ "$STAT" = "charging" ];
-                then
-                    if [ "$alarm" = "on" ]
-                    then
-                        ./alarm.sh &
-                        alarm_id=$(echo $!)
-                        alarm='off'
-                    fi
-                elif [ "$STAT" = "discharging" ];
+                if [ "$STAT" = "discharging" ];
                 then
                     if [ "$alarm" = 'on' ]
                     then
                         kill -9 $alarm_id
-                        alarm='on'
                     fi
-                    kill -9 $CRITCAL_ACTION
+                    
+                    kill -9 $NOTIFICATION
                     break
                 fi
                 sleep 1s;
@@ -63,21 +59,29 @@ then
         ####################################################
         # status: full-charged & power is above max charge #
         ####################################################
-        if [ "$STAT" == 'fully-charged' ] && [ "$BAT" -gt $maxCharge ];
+        if [ "$STAT" == 'fully-charged' ] && [ "$BAT" -gt "$maxCharge" ];
         then
-            echo -e "Battery Sufficiently charged\nPower holding at: $BAT%" | 
-            xargs -d '\n' notify-send -i battery-full-symbolic -u critical
+            ./notification.sh 1 &
+            NOTIFICATION=$(echo $!)
+            
+            if [ "$alarm" = "on" ]
+            then
+                ./alarm.sh &
+                alarm_id=$(echo $!)
+            fi
+            
             while true;
             do
-                STAT=$(upower -i $loc | 
-                grep state | grep "\(charging\|discharging\)" --only-matching)
+                STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
                 
-                if [ "$STAT" == 'charging' ] || [ "$STAT" == 'fully-charged' ];
+                if [ "$STAT" == 'discharging' ];
                 then
-                    espeak -a 200 -v ${LANGUAGE} "Battery sufficiently charged, please turn off the external power";
-                    sleep 10s;
-                elif [ "$STAT" == 'discharging' ];
-                then
+                    if [ "$alarm" = "on" ]
+                    then
+                        kill -9 $alarm_id
+                    fi
+                    
+                    kill -9 $NOTIFICATION
                     break
                 fi
                 sleep 1s;
@@ -106,7 +110,7 @@ then
             
             while true;
             do
-                STAT=$(upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
+                STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
                 
                 if [ "$STAT" = "charging" ];
                 then
