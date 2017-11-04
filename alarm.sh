@@ -5,5 +5,5 @@
 
 while true
 do
-    paplay sound/alarm.oga
+	paplay sound/alarm.oga
 done
