@@ -16,9 +16,16 @@ then
 	icon="battery-caution"
 fi
 
-while true
-do
-	BAT=$(upower -i $loc | grep percentage | grep '[0-9][0-9]' --only-matching)
-	echo -e "$msg: $BAT%" | xargs -d '\n' notify-send -t $timeout -i $icon -u normal
-	sleep $(( $timeout/1000 ))s
-done
+if [ "$method" = "static" ]
+then            
+    BAT=$(upower -i $loc | grep percentage | grep '[0-9][0-9]' --only-matching)
+    echo -e "$msg: $BAT%" | xargs -d '\n' notify-send -i $icon -u critical
+elif [ "$method" = "flash" ]
+then
+    while true
+    do
+        BAT=$(upower -i $loc | grep percentage | grep '[0-9][0-9]' --only-matching)
+        echo -e "$msg: $BAT%" | xargs -d '\n' notify-send -t $timeout -i $icon -u normal
+        sleep $(( $timeout/1000 ))s
+    done
+fi

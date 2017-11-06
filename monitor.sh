@@ -1,15 +1,15 @@
 #!/bin/bash
 
-if [ $USER == $user ]
+if [ "$USER" == "$user" ]
 then
-	# tests if the script is already running or not
-	if [ -f "/tmp/_bat_monitor_lockfile" ];
+        # tests if the script is already running or not
+	if [ -f "/tmp/_bat_monitor_lockfile_new" ];
 	then
-		exit 0
+                exit 0
 	fi
 
 	# creates a lockfile if the script starts to run
-	touch "/tmp/_bat_monitor_lockfile";
+	touch "/tmp/_bat_monitor_lockfile_new";
 
 	while true;
 	do
