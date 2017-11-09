@@ -8,10 +8,10 @@ user='apurv'
 loc='/org/freedesktop/UPower/devices/battery_BAT0'
 
 # How much should the battery be charged before alerting the user
-maxCharge=80
+maxCharge=90
 
 # How much should the battery be let to discharge before alerting the user
-minCharge=60
+minCharge=30
 
 # When is the system supposed to take an action before completely draining out
 criticalLevel=10
@@ -31,9 +31,9 @@ alarm='on'
 # of the new Notification Manager introduced.
 # Options 'flash', 'static'
 # Recommended: static
-method='flash'
+method='static'
 
-# If flashing notification, what should be the rate of flash (in milisecond)
+# If flashing notification, what should be the rate of flash (in millisecond)
 timeout=1000
 
 ##############################################

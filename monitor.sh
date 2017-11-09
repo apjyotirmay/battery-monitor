@@ -3,13 +3,13 @@
 if [ "$USER" == "$user" ]
 then
         # tests if the script is already running or not
-	if [ -f "/tmp/_bat_monitor_lockfile_new" ];
+	if [ -f "/tmp/_bat_monitor_lockfile" ];
 	then
                 exit 0
 	fi
 
 	# creates a lockfile if the script starts to run
-	touch "/tmp/_bat_monitor_lockfile_new";
+	touch "/tmp/_bat_monitor_lockfile";
 
 	while true;
 	do
@@ -38,6 +38,7 @@ then
 					if [ "$alarm" = 'on' ]
 					then
 						kill -9 $alarm_id
+						kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
 					fi
 
 					kill -9 $NOTIFICATION
@@ -70,6 +71,7 @@ then
 					if [ "$alarm" = "on" ]
 					then
 						kill -9 $alarm_id
+						kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
 					fi
 
 					kill -9 $NOTIFICATION
@@ -108,6 +110,7 @@ then
 					if [ "$alarm" = 'on' ]
 					then
 						kill -9 $alarm_id
+						kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
 					fi
 
 					if [ "$criticalAction" = 'on' ]
