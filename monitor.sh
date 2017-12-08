@@ -2,10 +2,10 @@
 
 if [ "$USER" == "$user" ]
 then
-        # tests if the script is already running or not
+				# tests if the script is already running or not
 	if [ -f "/tmp/_bat_monitor_lockfile" ];
 	then
-                exit 0
+								exit 0
 	fi
 
 	# creates a lockfile if the script starts to run
@@ -14,7 +14,7 @@ then
 	while true;
 	do
 		STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
-		BAT=$(upower -i $loc | grep percentage | grep '[0-9][0-9]' --only-matching)
+		BAT=$(upower -i $loc | grep percentage | grep '[0-9]*' --only-matching)
 
 		##################################################
 		# status: charging and power is above max charge #
