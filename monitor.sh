@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # tests if the script is already running or not
-ps -C monitor.sh &> /dev/null
-if [ "$?" -eq "0" ]
+PROCESS_NUM=$(ps -ef | grep "monitor.sh" | grep -v "grep" | wc -l)
+
+if [ "$PROCESS_NUM" -ne "2" ]
 then
 	exit 0
 fi
