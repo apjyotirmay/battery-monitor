@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# tests if the script is already running or not
-PROCESS_NUM=$(ps -ef | grep "monitor.sh" | grep -v "grep" | wc -l)
-
-if [ "$PROCESS_NUM" -ne "2" ]
-then
-	exit 0
-fi
-	
 while true;
 do
 	STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)

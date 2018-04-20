@@ -6,4 +6,4 @@
 # By default, this script shuts down the computer.
 # Modify this script according to your needs and set necessary permissions.
 
-poweroff
+systemctl suspend

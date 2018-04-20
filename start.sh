@@ -44,4 +44,10 @@ then
 	timeout=1000
 fi
 
-./monitor.sh
+PROCESS_NUM=$(ps -ef | grep "monitor.sh" | grep -v "grep" | wc -l)
+if [ "$PROCESS_NUM" -eq 0 ]
+then
+	./monitor.sh
+fi
+
+exit 0
