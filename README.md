@@ -13,7 +13,11 @@ In any case if the user is unable to turn on the charging, the script (critical_
 
 ## How to
 Use **start_monitor.sh** to start the script.
+
+First, mark the file as an executable using commandline
 > chmod +x start_monitor.sh
+
+Then, start the script.
 > ./start_monitor.sh
 
 Add this script to autostart, so it is executed every time the user logs in
