@@ -12,13 +12,13 @@ In any case if the user is unable to turn on the charging, the script (critical_
 **Note: Hibernate and suspend must be enabled and supported by your system to be used by this script.**
 
 ## How to
-Use **start_monitor.sh** to start the script.
+Use **start.sh** to start the script.
 
 First, mark the file as an executable using commandline
-> chmod +x start_monitor.sh
+> chmod +x start.sh
 
 Then, start the script.
-> ./start_monitor.sh
+> ./start.sh
 
 Add this script to autostart, so it is executed every time the user logs in
 
