@@ -22,6 +22,12 @@ export criticalAction='on'
 # Default is 'on'
 export alarm='on'
 
+# Run custom actions when AC OFF
+export acOffAction='on'
+
+# Run custom actions when AC ON
+export acOnAction='off'
+
 ################################
 # Visual notification settings #
 ################################

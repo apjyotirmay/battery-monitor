@@ -30,6 +30,11 @@ do
 					kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
 				fi
 
+				if [ "$acOffAction" = "on" ]
+				then
+					./acOffScript.sh &
+				fi
+
 				kill -9 $NOTIFICATION
 				break
 			fi
@@ -61,6 +66,11 @@ do
 				then
 					kill -9 $alarm_id
 					kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
+				fi
+
+				if [ "$acOffAction" = "on" ]
+				then
+					./acOffScript.sh &
 				fi
 
 				kill -9 $NOTIFICATION
@@ -105,6 +115,11 @@ do
 				if [ "$criticalAction" = 'on' ]
 				then
 					kill -9 $CRITCAL_ACTION
+				fi
+
+				if [ "$acOnAction" = "on" ]
+				then
+					./acOnScript.sh &
 				fi
 
 				kill -9 $NOTIFICATION
