@@ -22,4 +22,4 @@ Then, start the script.
 
 Add this script to autostart, so it is executed every time the user logs in
 
-**All the basic options can be modified in the start.sh script, and it is recommended to do the necessary modifications before using the script.**
+**All the basic options can be modified in the environmentVariables.sh script, and it is recommended to do the necessary modifications before using the script.**
