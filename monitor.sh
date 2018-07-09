@@ -1,133 +1,199 @@
 #!/bin/bash
 
-while true;
+source environmentVariables.sh
+
+while true
 do
-	STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
-	BAT=$(upower -i $loc | grep percentage | grep '[0-9]*' --only-matching)
+	batteryStatus
+	batteryPercentage
 
 	##################################################
 	# status: charging and power is above max charge #
 	##################################################
-	if [ "$STAT" = "charging" ] && [ "$BAT" -gt "$maxCharge" ];
+	if [ "$STAT" = 'charging' ]
 	then
-		./notification.sh 0 &
-		NOTIFICATION=$(echo $!)
-		if [ "$alarm" = "on" ]
-		then
-			./alarm.sh &
-			alarm_id=$(echo $!)
-		fi
-
-		while true;
+		nots=inactive
+		# begin charging while loop
+		while true
 		do
-			STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
-
-			if [ "$STAT" = "discharging" ];
+			batteryStatus
+			batteryPercentage
+			
+			# If charge is more than the set maxCharge limit, start notification and alarm
+			if [ "$BAT" -gt "$maxCharge" ]
 			then
-				if [ "$alarm" = 'on' ]
+				if [ "$nots" = 'inactive' ]
 				then
-					kill -9 $alarm_id
-					kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
+					./notification.sh 0 &
+					
+					if [ "$alarm" = "on" ]
+					then
+						./alarm.sh &
+						alarmPID=$!
+					fi
+					nots=active
 				fi
-
-				if [ "$acOffAction" = "on" ]
+			fi
+			# End of alarm and notification if-block
+			
+			# If charging is disconnected, kill alarm and execute acOffAction
+			# and end the while loop if discharging or fully-charged
+			if [ "$STAT" = 'discharging' ]
+			then
+				if [ "$acOffAction" = 'on' ]
 				then
 					./acOffScript.sh &
 				fi
-
-				kill -9 $NOTIFICATION
+				
+				if [ "$BAT" -gt "$maxCharge" ]
+				then
+					# kill all the scripts started in this scenario
+					if [ "$STAT" = "discharging" ] || [ "$STAT" = "fully-charged" ]
+					then
+						if [ "$alarm" = 'on' ]
+						then
+							kill -9 $alarmPID
+							kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
+						fi
+					fi
+					# end of killing scripts
+				fi
+				break
+			elif [ "$STAT" = 'fully-charged' ]
+			then
+				if [ "$alarm" = 'on' ]
+				then
+					kill -9 $alarmPID
+					kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
+				fi
 				break
 			fi
-			sleep 1s;
+			# End of the if-block for discharging
+
+			# sleep command to slow down the while-loop
+			sleep 1s
 		done
-	fi
+		# End charging while loop
 
 	####################################################
 	# status: full-charged & power is above max charge #
 	####################################################
-	if [ "$STAT" == 'fully-charged' ] && [ "$BAT" -gt "$maxCharge" ];
+	elif [ "$STAT" = 'fully-charged' ] && [ "$BAT" -gt "$maxCharge" ]
 	then
+		# start notifications
 		./notification.sh 1 &
-		NOTIFICATION=$(echo $!)
 
 		if [ "$alarm" = "on" ]
 		then
 			./alarm.sh &
-			alarm_id=$(echo $!)
+			alarmPID=$!
 		fi
+		# end of the notification initiation
 
-		while true;
+		# begin fully-charged while loop
+		while true
 		do
-			STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
-
-			if [ "$STAT" == 'discharging' ];
+			batteryStatus
+			
+			# if external power is disconnected, kill the alarm and break
+			# the while-loop
+			if [ "$STAT" = 'discharging' ]
 			then
+				# Kill all the scripts started for this scenario
 				if [ "$alarm" = "on" ]
 				then
-					kill -9 $alarm_id
+					kill -9 $alarmPID
 					kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
 				fi
+				# End of killing scripts
 
-				if [ "$acOffAction" = "on" ]
+				# Start acOffAction if needed
+				if [ "$acOffAction" = 'on' ]
 				then
 					./acOffScript.sh &
 				fi
+				# End of acOffAction
 
-				kill -9 $NOTIFICATION
 				break
 			fi
-			sleep 1s;
+			# End the if-block for discharging
+
+			# sleep call to slow down the while-loop
+			sleep 1s
 		done
-	fi
+		# End fully-charged while loop
 
 	###################################################
 	# status: discharging & power is below low charge #
 	###################################################
-	if [ "$STAT" = 'discharging' ] && [ "$BAT" -lt "$minCharge" ];
+	elif [ "$STAT" = 'discharging' ]
 	then
-		./notification.sh 2 &
-		NOTIFICATION=$(echo $!)
+		nots=inactive
 
-		if [ "$criticalAction" = 'on' ]
-		then
-			./critical_battery.sh &
-			CRITCAL_ACTION=$(echo $!)
-		fi
-
-		if [ "$alarm" = "on" ]
-		then
-			./alarm.sh &
-			alarm_id=$(echo $!)
-		fi
-
-		while true;
+		# begin discharge while loop
+		while true
 		do
-			STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
-
-			if [ "$STAT" = "charging" ];
+			batteryStatus
+			batteryPercentage
+			# if charge is less than minimum charge, then start this if-block
+			if [ "$BAT" -lt "$minCharge" ]
 			then
-				if [ "$alarm" = 'on' ]
+				# Send a notification, start alarm and critical action script
+				if [ "$nots" = "inactive" ]
 				then
-					kill -9 $alarm_id
-					kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
-				fi
+					./notification.sh 2 &
 
-				if [ "$criticalAction" = 'on' ]
+					if [ "$criticalAction" = 'on' ]
+					then
+						./critical_battery.sh &
+						criticalActionPID=$!
+					fi
+
+					if [ "$alarm" = "on" ]
+					then
+						./alarm.sh &
+						alarmPID=$!
+					fi
+					nots=active
+				fi
+				# End of the notification block
+			fi
+			# End of the minCharge if-block
+
+			# if power is plugged in, kill alarm and critical action script
+			if [ "$STAT" = "charging" ]
+			then
+				# Kill all the scripts if power is below minimum level
+				if [ "$BAT" -lt "$minCharge" ]
 				then
-					kill -9 $CRITCAL_ACTION
-				fi
+					if [ "$alarm" = 'on' ]
+					then
+						kill -9 $alarmPID
+						kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
+					fi
 
+					if [ "$criticalAction" = 'on' ]
+					then
+						kill -9 $criticalActionPID
+					fi
+				fi
+				# End of killing the scripts
+
+				# Start acOnAction script if needed
 				if [ "$acOnAction" = "on" ]
 				then
 					./acOnScript.sh &
 				fi
-
-				kill -9 $NOTIFICATION
+				# End of starting acOnAction script
 
 				break
 			fi
-			sleep 1s;
+			# End of the power plugged in block
+			
+			# sleep call of 1 second to slowdown the while-loop
+			sleep 1s
 		done
+		# End discharge while-loop
 	fi
-	sleep 1s;
+	sleep 1s
 done
