@@ -37,7 +37,7 @@ do
 			# End of alarm and notification if-block
 			
 			# If charging is disconnected, kill alarm and execute acOffAction
-			# and end the while loop if discharging or fully-charged
+			# and end the while loop if Discharging or fully-charged
 			if [ "$STAT" = 'discharging' ]
 			then
 				if [ "$acOffAction" = 'on' ]
@@ -52,8 +52,8 @@ do
 					then
 						if [ "$alarm" = 'on' ]
 						then
-							kill -9 $alarmPID
-							kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
+							#killall alarm.sh && kill -9 `ps -C paplay | awk 'FNR == 2 { print $1 }'`
+                            killAlarm
 						fi
 					fi
 					# end of killing scripts
@@ -63,12 +63,12 @@ do
 			then
 				if [ "$alarm" = 'on' ]
 				then
-					kill -9 $alarmPID
-					kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
+					#killall alarm.sh && kill -9 `ps -C paplay | awk 'FNR == 2 { print $1 }'`
+                    killAlarm
 				fi
 				break
 			fi
-			# End of the if-block for discharging
+			# End of the if-block for Discharging
 
 			# sleep command to slow down the while-loop
 			sleep 1s
@@ -102,8 +102,8 @@ do
 				# Kill all the scripts started for this scenario
 				if [ "$alarm" = "on" ]
 				then
-					kill -9 $alarmPID
-					kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
+					#killall alarm.sh && kill -9 `ps -C paplay | awk 'FNR == 2 { print $1 }'`
+                    killAlarm
 				fi
 				# End of killing scripts
 
@@ -116,7 +116,7 @@ do
 
 				break
 			fi
-			# End the if-block for discharging
+			# End the if-block for Discharging
 
 			# sleep call to slow down the while-loop
 			sleep 1s
@@ -124,7 +124,7 @@ do
 		# End fully-charged while loop
 
 	###################################################
-	# status: discharging & power is below low charge #
+	# status: Discharging & power is below low charge #
 	###################################################
 	elif [ "$STAT" = 'discharging' ]
 	then
@@ -168,8 +168,8 @@ do
 				then
 					if [ "$alarm" = 'on' ]
 					then
-						kill -9 $alarmPID
-						kill -9 $(ps ax | grep "paplay" | grep -v grep | awk '{ print $1 }')
+                        #killall alarm.sh && kill -9 `ps -C paplay | awk 'FNR == 2 { print $1 }'`
+                        killAlarm
 					fi
 
 					if [ "$criticalAction" = 'on' ]

@@ -43,11 +43,16 @@ export timeout=1000
 
 # Function to get the battery's charge percentage
 function batteryPercentage() {
-	BAT=$(upower -i $loc | grep percentage | grep '[0-9]*' --only-matching)
+	#BAT=$(upower -i $loc | grep percentage | grep '[0-9]*' --only-matching)
+    BAT=`acpi | awk '{print $4}' | sed 's/\%,//'`
 }
 
 # Function to get battery's charging status
 function batteryStatus() {
-	STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
+	#STAT=$(upower -i $loc | grep state | grep "\(charging\|discharging\|fully-charged\)" --only-matching)
+    STAT=`acpi | awk '{print $3}' | sed 's/,//' | awk '{print tolower($0)}'`
 }
 
+function killAlarm() {
+    killall alarm.sh && kill -9 `ps -C paplay | awk 'FNR == 2 { print $1 }'`
+}
